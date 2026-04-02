@@ -115,7 +115,7 @@ Beyond the cache bugs, several Claude Code behaviors significantly accelerate to
 
 Even with cache working perfectly (91-99% read ratio), multiple users report faster quota drain compared to 2-3 weeks ago. This suggests a **server-side change** in rate limit calculation (pool size, cost weighting, or both) — not fixable client-side. The precautions above help stretch whatever budget remains.
 
-**Related:** Shared billing methods can share rate limit pools — if another account uses the same payment method, their usage counts against yours ([#41881](https://github.com/anthropics/claude-code/issues/41881)).
+**Related:** Shared billing methods can share rate limit pools — if another account uses the same payment method, their usage counts against yours ([#41881](https://github.com/anthropics/claude-code/issues/41881)). Source code analysis confirms that `passesEligibilityCache` and `overageCreditGrantCache` are keyed by `organizationUuid` (not `accountUuid`), meaning quota and overage credits are managed at the **organization level**, not the individual account level.
 
 ---
 
