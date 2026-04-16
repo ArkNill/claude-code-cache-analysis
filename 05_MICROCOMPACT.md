@@ -116,7 +116,7 @@ If this gate flips on via A/B test, sessions will retain 20K tokens max — a fr
 
 ### Setup
 
-Proxy-based request body scanner (cc-relay + `ANTHROPIC_BASE_URL`) detects `[Old tool result content cleared]` in outgoing API requests before they leave the machine. GrowthBook file watcher diffs `~/.claude.json` every 10 seconds.
+Proxy-based request body scanner (cc-relay + `ANTHROPIC_BASE_URL`) detects `[Old tool result content cleared]` in outgoing API requests before they leave the machine. Changes to the GrowthBook disk cache can also be monitored for divergence between cached and runtime values.
 
 ### Confirmed Results (April 3, 2026)
 

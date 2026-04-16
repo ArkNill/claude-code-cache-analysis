@@ -2,13 +2,17 @@
 
 # Claude Code Hidden Problem Analysis
 
-> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Nine remain unfixed as of v2.1.108** (latest, 8 releases later). Proxy data now covers **35,554 requests** over 15 days. A controlled GrowthBook flag override eliminated B4/B5 events completely (167,818 → 0, 5,500 → 0). The 7d quota window can become the binding constraint — first observed when 7d utilization hit 0.97. Anthropic acknowledged B11 (adaptive thinking zero-reasoning) on HN but has not followed up.
+> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Nine remain unfixed as of v2.1.108** (latest, 8 releases later). Proxy data in dataset `ubuntu-1-stock` now covers **38,996 requests** over 16 days (April 1–16, 272 unique sessions). A controlled GrowthBook flag override eliminated B4/B5 events completely (167,818 → 0, 5,500 → 0). The 7d quota window can become the binding constraint — first observed when 7d utilization hit 0.97. Anthropic acknowledged B11 (adaptive thinking zero-reasoning) on HN but has not followed up.
 >
-> **Last updated:** April 15, 2026 — see [changelog cross-reference](01_BUGS.md#changelog-cross-reference-v2192v21101) and [08_UPDATE-LOG.md](08_UPDATE-LOG.md).
+> **Last updated:** April 16, 2026 — see [changelog cross-reference](01_BUGS.md#changelog-cross-reference-v2192v21101), [08_UPDATE-LOG.md](08_UPDATE-LOG.md), and [14_DATA-SOURCES.md](14_DATA-SOURCES.md) (new: full data label matrix and reconciliation).
 
 ---
 
-## Latest Update (April 15)
+## Latest Update (April 16)
+
+### April 16 — Data source re-audit, 39K requests, 3 labeled datasets, environment breakdown
+
+Proxy dataset expanded to **38,996 requests** across **272 sessions** (April 1–16). Full data audit: 3 labeled datasets (4,593 JSONL files / 512,149 messages / ~1.9 GB) now indexed in an internal database. New chapters: [14_DATA-SOURCES.md](14_DATA-SOURCES.md) (label matrix + historical reconciliation) and [15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md) (per-environment cache_read, model dispatch, tier-dependent Haiku findings). Post-April 10 cache_read: `ubuntu-1-override` **97.08%** vs `ubuntu-1-stock` 96.00% — consistent with 1h TTL preservation under the override. Max 5x Haiku share **0.11%** vs Max 20x **~21%** (190× difference).
 
 ### April 15 — 35K requests, v2.1.108 verified, @seanGSISG independent validation
 
@@ -109,7 +113,7 @@ Transparent proxy (cc-relay) captured `anthropic-ratelimit-unified-*` headers ac
 
 ---
 
-## Current Status (April 15, 2026 — verified through v2.1.108)
+## Current Status (April 16, 2026 — verified through v2.1.108)
 
 ```mermaid
 pie title Bug Status (12 identified, verified through v2.1.108)
@@ -220,9 +224,11 @@ She [recommended](https://x.com/lydiahallie/status/2039800718371307603) using So
 | **[01_BUGS.md](01_BUGS.md)** | All 11 bugs (B1-B11, B2a, B8a) + 3 preliminary (P1-P3, P4 removed) + changelog cross-reference (v2.1.92-108) | Apr 15 |
 | **[09_QUICKSTART.md](09_QUICKSTART.md)** | Quick fix guide — Option A (v2.1.91+) vs Option B (v2.1.63 downgrade), npm vs standalone, diagnosis | Apr 9 |
 | **[07_TIMELINE.md](07_TIMELINE.md)** | 14-month chronicle (Phase 1-9) + April 6-9 community acceleration + Anthropic response | Apr 9 |
-| **[08_UPDATE-LOG.md](08_UPDATE-LOG.md)** | Daily investigation log + changelog cross-reference | Apr 15 |
+| **[08_UPDATE-LOG.md](08_UPDATE-LOG.md)** | Daily investigation log + changelog cross-reference | Apr 16 |
 | **[10_ISSUES.md](10_ISSUES.md)** | 91+ tracked issues + community tools + contributors | Apr 9 |
-| **[13_PROXY-DATA.md](13_PROXY-DATA.md)** | Full proxy dataset (35,554 requests, 251 sessions) with Mermaid visualizations | Apr 15 |
+| **[13_PROXY-DATA.md](13_PROXY-DATA.md)** | Full proxy dataset (38,996 requests, 272 sessions, April 1–16) with Mermaid visualizations | Apr 16 |
+| **[14_DATA-SOURCES.md](14_DATA-SOURCES.md)** | Data label matrix (`ubuntu-1-stock` / `ubuntu-1-override` / `win-1-stock`), reconciliation with earlier "single machine" figures, and internal database schema overview | Apr 16 |
+| **[15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md)** | Per-environment cache_read ratios (pre/post April 10, daily trend), Max 20x vs Max 5x model dispatch comparison, tier-dependent Haiku share finding | Apr 16 |
 | **[02_RATELIMIT-HEADERS.md](02_RATELIMIT-HEADERS.md)** | Dual 5h/7d window architecture, per-1% cost, thinking token blind spot, fallback-percentage extended data | Apr 15 |
 | **[03_JSONL-ANALYSIS.md](03_JSONL-ANALYSIS.md)** | Session log analysis: PRELIM inflation, subagent costs, lifecycle curve, proxy cross-validation | Apr 6 |
 | **[05_MICROCOMPACT.md](05_MICROCOMPACT.md)** | Deep dive: silent context stripping (Bug 4) + tool result budget (Bug 5) | Apr 15 |
@@ -233,11 +239,14 @@ She [recommended](https://x.com/lydiahallie/status/2039800718371307603) using So
 
 ## Environment
 
-- **Plan:** Max 20 ($200/mo)
-- **OS:** Linux (Ubuntu), Linux workstation (ubuntu-1)
-- **Versions tested:** v2.1.91 (benchmark), v2.1.90, v2.1.89, v2.1.68. Changelog verified through **v2.1.108**
-- **Monitoring:** cc-relay v2 transparent proxy (35,554 total requests across 251 sessions, April 1–15)
-- **Date:** April 15, 2026
+- **Primary dataset (this repo's published analysis): `ubuntu-1-stock`**
+  - **Plan:** Max 20 ($200/mo)
+  - **OS:** Linux (Ubuntu), Linux workstation (ubuntu-1)
+  - **CC mode:** native `~/.claude` (CC stock, no flag overrides or other instrumentation)
+  - **Versions tested:** v2.1.91 (benchmark), v2.1.90, v2.1.89, v2.1.68. Changelog verified through **v2.1.108**
+  - **Monitoring:** cc-relay v2 transparent proxy — **38,996 total requests across 272 sessions (April 1–16)**
+- **Parallel datasets (tracked separately, see [14_DATA-SOURCES.md](14_DATA-SOURCES.md)):** `ubuntu-1-override` (same machine/account, isolated override environment with a GrowthBook flag override active since April 10 — additional components kept private), `win-1-stock` (Windows 11, Max 5x — research/validation only, not used for the main published analysis)
+- **Date:** April 16, 2026
 
 ---
 

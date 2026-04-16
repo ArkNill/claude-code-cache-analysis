@@ -1,1 +1,7 @@
 drafts/
+CLAUDE.md
+PLAN.txt
+*.env
+*.pyc
+__pycache__/
+.claude/

@@ -206,7 +206,7 @@ Starting April 11, two independent researchers published cross-account data in [
 
 ### What we know
 
-1. **Consistency within accounts:** Our 35,554 requests over 15 days and cnighswonger's 11,502 over 7 days both show zero variance. The field is a **fixed per-account value**, not dynamically adjusted per request, time of day, or load.
+1. **Consistency within accounts:** Our 38,996 requests over 16 days (dataset `ubuntu-1-stock`, April 1–16) and cnighswonger's 11,502 over 7 days both show zero variance. The field is a **fixed per-account value**, not dynamically adjusted per request, time of day, or load.
 2. **Variation across time:** 0.2 in November 2025 (#12829) vs 0.5 in April 2026 — the value can change over time.
 3. **`overage-status` diverges across accounts on the same plan:** Our Max 20x and cnighswonger's Max 5x both show `allowed`, while 0xNightDev's Max 5x shows `rejected` + `org_level_disabled`.
 
@@ -246,7 +246,7 @@ Sections 1–7 reported `representative-claim` = `five_hour` in 100% of our init
 
 > **Added:** April 14, 2026
 
-Our proxy data spans April 1–15 (35,554 total requests, 23,374 with rate limit headers). The measurement environment changed during this period:
+Our proxy data in dataset `ubuntu-1-stock` spans April 1–16 (**38,996 total requests**, 23,374 with rate limit headers as of the April 14 analysis). The measurement environment changed during this period:
 
 | Period | Requests | Environment | Use for |
 |--------|----------|-------------|---------|
@@ -311,6 +311,6 @@ Rate limit headers captured via cc-relay transparent proxy. Each row = one clock
 
 ---
 
-*Environment: Max 20x ($200/mo), Opus 4.6 1M, v2.1.91 via cc-relay transparent proxy, Linux (ubuntu-1), single machine. 8,794 total proxy requests, 3,702 with rate limit headers.*
+*Environment: dataset `ubuntu-1-stock` — Max 20x ($200/mo), Opus 4.6 1M, v2.1.91 via cc-relay transparent proxy, Linux (ubuntu-1), native `~/.claude` (CC stock mode). 8,794 total proxy requests, 3,702 with rate limit headers (April 4–6 slice used for §1–7). Full current totals: 38,996 requests / 272 sessions (April 1–16). See [14_DATA-SOURCES.md](14_DATA-SOURCES.md) for the full label matrix.*
 
 *This analysis is based on community research and personal measurement. It is not endorsed by Anthropic. All data captured using official tools and documented features.*

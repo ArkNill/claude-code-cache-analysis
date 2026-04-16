@@ -2,15 +2,15 @@
 
 # Proxy & Bulk Scan — Full Dataset
 
-> **Date:** April 15, 2026 (data collection ongoing)
+> **Date:** April 16, 2026 (data collection ongoing)
 >
 > **Data sources:**
-> - cc-relay proxy SQLite database (`usage.db`) — 35,554 API requests intercepted (April 1-15)
-> - JSONL bulk scan via `jsonl_analyzer.py` — 532 session files, 158.3 MB (April 1-8, not re-run for later dates)
+> - cc-relay proxy SQLite database — **38,996 API requests intercepted (April 1–16)** across 272 unique sessions (dataset `ubuntu-1-stock`)
+> - JSONL bulk scan via `jsonl_analyzer.py` — 532 session files, 158.3 MB (April 1-8, not re-run for later dates; historical snapshot)
 >
-> **Relationship to other documents:** [03_JSONL-ANALYSIS.md](03_JSONL-ANALYSIS.md) contains the JSONL client-side analysis (§1-8) and references key findings from this document. [01_BUGS.md](01_BUGS.md) contains bug definitions; this document provides the full measured data. [02_RATELIMIT-HEADERS.md](02_RATELIMIT-HEADERS.md) covers server-side rate limit header analysis.
+> **Relationship to other documents:** [03_JSONL-ANALYSIS.md](03_JSONL-ANALYSIS.md) contains the JSONL client-side analysis (§1-8) and references key findings from this document. [01_BUGS.md](01_BUGS.md) contains bug definitions; this document provides the full measured data. [02_RATELIMIT-HEADERS.md](02_RATELIMIT-HEADERS.md) covers server-side rate limit header analysis. [14_DATA-SOURCES.md](14_DATA-SOURCES.md) explains the full data label matrix and reconciles historical snapshot figures with the current DW state.
 >
-> **Environment change:** On April 10, a proxy-based GrowthBook flag override was deployed. Data from **April 1–10** is from the unmodified environment (baseline). Data from **April 11–15** is from the overridden environment. B4/B5 event counts are entirely from the baseline period. See [01_BUGS.md](01_BUGS.md#growthbook-flag-override--controlled-elimination-test-april-1014) for details.
+> **Environment change:** On April 10, a proxy-based GrowthBook flag override was deployed. Data from **April 1–10** is from the unmodified environment (baseline). Data from **April 11 onward** is from the overridden environment. B4/B5 event counts are entirely from the baseline period. See [01_BUGS.md](01_BUGS.md#growthbook-flag-override--controlled-elimination-test-april-1014) for details. The overridden environment is also tracked as the separate dataset `ubuntu-1-override` — see [14_DATA-SOURCES.md](14_DATA-SOURCES.md).
 
 ---
 
@@ -18,16 +18,16 @@
 
 ### 1.1 Totals
 
-| Metric | Value (Apr 1-8) | Value (Apr 1-15, latest) |
-|--------|-----------------|--------------------------|
-| Total API requests | 17,610 | **35,554** |
-| Unique sessions | 129 | **251** |
-| Total input tokens | 12,438,471 | **28,477,426** |
-| Total output tokens | 8,214,875 | **15,007,647** |
-| Total cache_read | 1,692,619,956 | **2,988,290,095** |
-| Total cache_creation | 38,785,293 | **64,098,470** |
-| Overall cache % | — | **98.3%** |
-| Date range | Apr 1–8 | **Apr 1–15** |
+| Metric | Value (Apr 1-8) | Value (Apr 1-15) | Value (Apr 1–16, latest) |
+|--------|-----------------|------------------|--------------------------|
+| Total API requests | 17,610 | 35,554 | **38,996** |
+| Unique sessions | 129 | 251 | **272** |
+| Total input tokens | 12,438,471 | 28,477,426 | **31,091,542** |
+| Total output tokens | 8,214,875 | 15,007,647 | **18,346,556** |
+| Total cache_read | 1,692,619,956 | 2,988,290,095 | **4,084,180,976** |
+| Total cache_creation | 38,785,293 | 64,098,470 | **78,161,480** |
+| Overall cache % | — | 98.3% | **98.8%** |
+| Date range | Apr 1–8 | Apr 1–15 | **Apr 1–16** |
 
 ```mermaid
 xychart-beta
@@ -383,4 +383,4 @@ xychart-beta
 
 ---
 
-*Environment: Max 20x ($200/mo), Opus 4.6 1M, v2.1.91, Linux (ubuntu-1), single machine. cc-relay proxy: 35,554 requests (April 1-15). JSONL corpus: 1,735+ files (532 in last 7 days), 158.3 MB. Data collection ongoing — numbers will increase with continued usage.*
+*Environment: dataset `ubuntu-1-stock` — Max 20x ($200/mo), Opus 4.6 1M, v2.1.91, Linux (ubuntu-1), native `~/.claude` (CC stock mode). cc-relay proxy: **38,996 requests (April 1–16, 272 sessions)**. JSONL corpus: **2,098 files, 911 MB** (historical bulk scan: 532 files in April 1–8 window, 158.3 MB). A parallel `ubuntu-1-override` environment (same account, isolated override environment, GrowthBook flag override active since April 10) is tracked separately — see [14_DATA-SOURCES.md](14_DATA-SOURCES.md). Data collection ongoing.*

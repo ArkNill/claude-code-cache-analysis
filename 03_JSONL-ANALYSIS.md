@@ -438,4 +438,4 @@ Rate limit headers captured via cc-relay proxy. Each row = one clock hour (KST).
 
 ---
 
-*Environment: Max 20x ($200/mo), Opus 4.6 1M, v2.1.91, Linux (ubuntu-1), single machine. 1,735 JSONL files, 1.0 GB total. Proxy cross-correlation subset: 8,794 requests, 3,702 with rate limit headers (April 4-6). Full proxy dataset (17,610 requests, April 1-8) and JSONL bulk scan (532 files): [13_PROXY-DATA.md](13_PROXY-DATA.md).*
+*Environment: dataset `ubuntu-1-stock` — Max 20x ($200/mo), Opus 4.6 1M, v2.1.91, Linux (ubuntu-1), native `~/.claude` (CC stock mode). JSONL corpus at the time of authoring: 1,735 files, 1.0 GB. Proxy cross-correlation subset: 8,794 requests, 3,702 with rate limit headers (April 4-6). Full proxy dataset (17,610 requests, April 1-8) and JSONL bulk scan (532 files): [13_PROXY-DATA.md](13_PROXY-DATA.md). A parallel `ubuntu-1-override` environment (isolated override environment with a GrowthBook flag override active since April 10, same account) is tracked separately — see [14_DATA-SOURCES.md](14_DATA-SOURCES.md) for the full label matrix and current totals.*

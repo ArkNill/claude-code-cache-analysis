@@ -6,6 +6,36 @@
 
 ---
 
+## April 16, 2026 — Data Source Re-Audit & DW Consolidation
+
+**Focus:** Re-audit the labeling of previously published figures after noticing that the descriptor "single machine, 1,735 JSONL files" was imprecise.
+
+**What was done:**
+- Enumerated all local data assets: ubuntu-1 `~/.claude/projects/` (stock, 2,098 JSONL, 911 MB), ubuntu-1 an isolated override environment` (override env, 2,324 JSONL, 948 MB), win-1 `.claude/projects/` (Max 5x, 171 JSONL, 5.7 MB). Total: 4,593 JSONL / 512,149 messages / ~1.9 GB
+- Re-loaded the cc-relay SQLite proxy database — 38,996 requests across 272 sessions, April 1–16 (previously reported as 35,554 / 251 / April 1–15)
+- Created a new schema in an internal Postgres database with five tables and indexed every file/message/request with explicit environment labels (machine, tier, cc_mode, cc_version, proxy_stack)
+- Verified the 96.9% cache_read dominance at the proxy layer on the fresh data (matches the previously published 97.3% figure, and independently cross-validates fgrosswig's gateway forensics at 97.3% of 98.7M tokens)
+- Published [14_DATA-SOURCES.md](14_DATA-SOURCES.md) as the authoritative label matrix and reconciliation table
+- Corrected the environment descriptors in [README.md](README.md), [13_PROXY-DATA.md](13_PROXY-DATA.md), [03_JSONL-ANALYSIS.md](03_JSONL-ANALYSIS.md), and [02_RATELIMIT-HEADERS.md](02_RATELIMIT-HEADERS.md): "single machine" is replaced with the explicit dataset label `ubuntu-1-stock` (CC stock mode) and a pointer to the parallel `ubuntu-1-override` dataset
+
+**Findings:**
+- The published analysis is entirely computed from `ubuntu-1-stock` and remains reproducible from the same sessions. Historical snapshot figures (17,610 requests on April 1–8; 532 JSONL files scanned on April 1–8) are kept as-is and annotated as historical
+- Post-April 10 cache_read ratio under the overridden environment (`ubuntu-1-override`) is **97.08%** on 24,694 assistant turns vs **95.96%** on `ubuntu-1-stock` over the same period — consistent with the 1h TTL being preserved under the override
+- The win-1 Max 5x dataset is deliberately excluded from the main published analysis to preserve the single-plan (Max 20x) control for all figures in this repo
+
+**Published:**
+- [14_DATA-SOURCES.md](14_DATA-SOURCES.md) (new) — data label matrix and reconciliation
+- [15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md) (new) — per-environment cache_read, pre/post April 10 shift, Max 20x vs Max 5x model dispatch
+- Label / figure updates to [README.md](README.md), [13_PROXY-DATA.md](13_PROXY-DATA.md), [03_JSONL-ANALYSIS.md](03_JSONL-ANALYSIS.md), [02_RATELIMIT-HEADERS.md](02_RATELIMIT-HEADERS.md)
+- Draft branch: `data-label-correction-20260416`
+
+**Key findings from [15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md):**
+- Post-April 10 cache_read ratio: `ubuntu-1-override` 97.08% (24,694 turns) vs `ubuntu-1-stock` 96.00% (4,357 residual turns) — the +1.08 pp gap is consistent with the 1h TTL being preserved under the override
+- Daily trend: `ubuntu-1-override` reaches 98.16% cache_read on April 15 (8,175 assistant turns)
+- Model dispatch differs by plan tier: Haiku accounts for ~21% of assistant turns on both Max 20x datasets but only **0.11%** on the Max 5x dataset (1 turn out of 895). Consistent with third-party observations of tier-dependent dispatcher behaviour (fgrosswig [#38335](https://github.com/anthropics/claude-code/issues/38335), cnighswonger Max 5x zero-mismatch)
+
+---
+
 ## April 1, 2026 — Initial Discovery
 
 **Trigger:** Max 20 plan ($200/mo) hit 100% usage in ~70 minutes during normal coding.
@@ -221,7 +251,7 @@ Previous analysis stated bcherny responded "to" stellaraccident (AMD director) w
 
 ## April 10-12 — No investigation (personal leave)
 
-Offline for health reasons. cc-relay proxy continued collecting data unattended (ZBook stayed on). No analysis, no community engagement, no commits.
+Offline for health reasons. cc-relay proxy continued collecting data unattended (ubuntu-1 stayed on). No analysis, no community engagement, no commits.
 
 ---
 
@@ -261,7 +291,7 @@ The 3 days I was away were intense. #42796 saw a wave of subscription cancellati
 **Focus:** Proxy data refresh + changelog verification through v2.1.108.
 
 **Data updated:**
-- Proxy dataset expanded to **35,554 requests** across **251 sessions** (April 1–15)
+- Proxy dataset expanded to **35,554 requests** across **251 sessions** (April 1–15). Further extended on April 16 to **38,996 / 272 / April 1–16**; see the April 16 entry below
 - Post-barrier requests: **9,996** (April 10 14:25 – April 15), still zero B4/B5 events — 5 days of clean data
 - Overall cache efficiency: **98.3%**
 - Changelog verified through **v2.1.108** — still zero fixes for B3–B11
@@ -274,7 +304,7 @@ The 3 days I was away were intense. #42796 saw a wave of subscription cancellati
 
 Carried forward from April 9, with updates:
 
-- ~~Continue rate limit header data collection through April 10~~ ✅ Done (35,554 requests through April 15)
+- ~~Continue rate limit header data collection through April 10~~ ✅ Done (38,996 requests through April 16, dataset `ubuntu-1-stock`)
 - ~~Verify P3 "Output efficiency" prompt~~ ✅ Done (OBSERVED REMOVED, 353 JSONL scan)
 - **Thinking token isolation test**: still pending. Run sessions with `alwaysThinkingEnabled: false` and compare per-1% utilization cost
 - **v2.1.92+ JSONL verification:** Check if B8 PRELIM duplication is reduced in transcript
