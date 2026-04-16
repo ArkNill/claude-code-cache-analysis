@@ -56,7 +56,7 @@ xychart-beta
 ## 2. Model Distribution (Opus vs Subagent)
 
 ```mermaid
-pie title Requests by Model (Apr 1-15, n=35,554)
+pie title Requests by Model (Apr 1-16, n=38,996)
     "Opus (67%)" : 20457
     "Haiku (23%)" : 7157
     "Other (10%)" : 2867

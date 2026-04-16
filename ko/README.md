@@ -2,17 +2,33 @@
 
 # Claude Code 숨겨진 문제점 분석
 
-> **TL;DR:** Claude Code에는 **11개의 확인된 클라이언트 측 버그**(B1-B5, B8, B8a, B9, B10, B11, B2a)와 **3개의 예비 발견**(P1-P3)이 있습니다. 캐시 버그(B1-B2)는 v2.1.91에서 수정되었습니다. **v2.1.101(최신, 8개 릴리스 이후) 기준 9개가 미수정입니다.** 프록시 데이터는 14일간 **30,477건의 요청**을 포함합니다. 제어된 GrowthBook flag 오버라이드를 통해 B4/B5 이벤트가 완전히 제거되었습니다 (167,818 → 0, 5,500 → 0). 7일 쿼터 윈도우가 실질적 병목이 될 수 있음이 처음으로 관측되었습니다 -- 7일 사용률이 0.97에 도달했을 때 확인되었습니다. Anthropic은 B11(adaptive thinking zero-reasoning)을 HN에서 인정하였으나 후속 조치는 없습니다.
+> **TL;DR:** Claude Code에는 **11개의 확인된 클라이언트 측 버그**(B1-B5, B8, B8a, B9, B10, B11, B2a)와 **3개의 예비 발견**(P1-P3)이 있습니다. 캐시 버그(B1-B2)는 v2.1.91에서 수정되었습니다. **v2.1.108(최신) 기준 9개가 미수정입니다.** `ubuntu-1-stock` 데이터셋의 프록시 데이터는 이제 16일간(4월 1–16일, 272개 고유 세션) **38,996건의 요청**을 포함합니다. 제어된 GrowthBook flag 오버라이드를 통해 B4/B5 이벤트가 완전히 제거되었습니다 (167,818 → 0, 5,500 → 0). 7일 쿼터 윈도우가 실질적 병목이 될 수 있음이 처음으로 관측되었습니다 -- 7일 사용률이 0.97에 도달했을 때 확인되었습니다. Anthropic은 B11(adaptive thinking zero-reasoning)을 HN에서 인정하였으나 후속 조치는 없습니다.
 >
-> **최종 업데이트:** 2026년 4월 14일 -- [changelog 교차 참조](01_BUGS.md#changelog-cross-reference-v2192v21101) 및 [08_UPDATE-LOG.md](../08_UPDATE-LOG.md) 참조.
+> **최종 업데이트:** 2026년 4월 16일 -- [changelog 교차 참조](01_BUGS.md#changelog-cross-reference-v2192v21101), [08_UPDATE-LOG.md](../08_UPDATE-LOG.md), [14_DATA-SOURCES.md](14_DATA-SOURCES.md) (신규: 전체 데이터 라벨 매트릭스와 조정) 참조.
 
 ---
 
-## 최신 업데이트 (4월 14일)
+## 최신 업데이트 (4월 16일)
 
-### 4월 14일 -- 30K 요청, GrowthBook 오버라이드 방법론, 7일 병목 발견, 환경 주의사항
+### 4월 16일 -- 데이터 소스 재감사, 39K 요청, 3개 라벨링 데이터셋, 환경별 분석
 
-프록시 데이터셋이 **230개 세션**에 걸쳐 **30,477건의 요청**(4월 1-14일)으로 확장되었습니다. 주요 업데이트:
+프록시 데이터셋이 **272개 세션**에 걸쳐 **38,996건의 요청**(4월 1–16일)으로 확장되었습니다. 전체 데이터 감사: 3개의 라벨링 데이터셋(JSONL 파일 4,593개 / 메시지 512,149개 / 약 1.9 GB)을 내부 데이터베이스에 인덱싱하였습니다. 신규 챕터: [14_DATA-SOURCES.md](14_DATA-SOURCES.md)(라벨 매트릭스 + 과거 수치와의 조정) 및 [15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md)(환경별 cache_read, 모델 디스패치, 티어 의존적 Haiku 발견). 4월 10일 이후 cache_read: `ubuntu-1-override` **97.08%** vs `ubuntu-1-stock` 96.00% — 오버라이드 하에서 1시간 TTL이 보존되는 것과 일치합니다. Max 5x의 Haiku 비율은 **0.11%** vs Max 20x의 **약 21%** (190배 차이).
+
+### 4월 15일 -- 35K 요청, v2.1.108 검증, @seanGSISG 독립 검증
+
+프록시 데이터셋이 **251개 세션**에 걸쳐 **35,554건의 요청**(4월 1–15일)으로 확장되었습니다. CC v2.1.108까지 검증하였습니다.
+
+**1. 독립 교차 검증.** [@seanGSISG](https://github.com/ArkNill/claude-code-hidden-problem-analysis/issues/3)가 179K건의 호출 데이터셋(2025년 12월–2026년 4월, Max 20x)과 4개의 분석 스크립트를 기여하였습니다. 주요 결과: 사용률 1%당 CacheRead가 1.62–1.72M(우리의 1.5–2.1M 범위 내), JSONL 콘텐츠 블록에서 추정한 thinking 토큰 기여도 0.0–0.1%, 그리고 0배 수식에서는 예산 초과일이 0일이지만 1배 수식에서는 18일이 초과한다는 반사실 증명. 이로써 "before-data 없음"이라는 우리의 한계가 해소되었습니다. [Issue #3 →](https://github.com/ArkNill/claude-code-hidden-problem-analysis/issues/3)
+
+**2. Thinking 토큰 상태 업데이트.** @seanGSISG의 JSONL 분석에 따라 "사각지대"에서 "부분 측정됨"으로 개정되었습니다. 서버 측 계산 비용은 여전히 클라이언트에서 측정할 수 없지만, 콘텐츠 블록 텍스트는 쿼터의 1% 미만임을 시사합니다. [상세 →](../02_RATELIMIT-HEADERS.md#partially-measured-thinking-tokens)
+
+**3. 캐시 효율.** 전체 캐시 효율이 **98.3%**로 향상되었습니다(30K 요청 시점의 97.0%에서). 배리어 이후(플래그 오버라이드 활성): 9,996건의 요청에서 B4/B5 이벤트 0건 지속.
+
+---
+
+### 4월 14일 -- GrowthBook 오버라이드 방법론, 7일 병목 발견, 환경 주의사항
+
+4월 14일의 주요 업데이트:
 
 **1. GrowthBook flag 오버라이드 -- 제어된 제거 테스트.** 4월 10일에 프록시 기반 flag 오버라이드를 배포하였습니다 ([#42542](https://github.com/anthropics/claude-code/issues/42542)에 문서화된 접근법). 결과: 4일간 4,919건의 후속 요청에서 **B5 이벤트 167,818 → 0, B4 이벤트 5,500 → 0**. 동일한 머신, 동일한 계정, 동일한 사용 패턴입니다. 이것은 해당 flag가 context 변조를 직접 제어한다는 가장 강력한 인과 증거입니다. [방법론 →](01_BUGS.md#growthbook-flag-override--controlled-elimination-test-april-1014)
 
@@ -205,13 +221,15 @@ Lydia Hallie는 Sonnet을 기본 모델로 사용하고, effort 레벨을 낮추
 
 | 파일 | 내용 | 업데이트 |
 |------|------|----------|
-| **[01_BUGS.md](01_BUGS.md)** | 전체 11개 버그 (B1-B11, B2a, B8a) + 3개 예비 발견 (P1-P3, P4 제거) + changelog 교차 참조 (v2.1.92-101) | 4월 14일 |
+| **[01_BUGS.md](01_BUGS.md)** | 전체 11개 버그 (B1-B11, B2a, B8a) + 3개 예비 발견 (P1-P3, P4 제거) + changelog 교차 참조 (v2.1.92-108) | 4월 15일 |
 | **[09_QUICKSTART.md](../09_QUICKSTART.md)** | Quick fix 가이드 -- Option A (v2.1.91+) vs Option B (v2.1.63 다운그레이드), npm vs standalone, 진단 | 4월 9일 |
 | **[07_TIMELINE.md](../07_TIMELINE.md)** | 14개월 연대기 (Phase 1-9) + 4월 6-9일 커뮤니티 가속 + Anthropic 응답 | 4월 9일 |
-| **[08_UPDATE-LOG.md](../08_UPDATE-LOG.md)** | 일일 조사 로그 + changelog 교차 참조 | 4월 9일 |
+| **[08_UPDATE-LOG.md](../08_UPDATE-LOG.md)** | 일일 조사 로그 + changelog 교차 참조 | 4월 16일 |
 | **[10_ISSUES.md](../10_ISSUES.md)** | 91건 이상 추적 이슈 + 커뮤니티 도구 + 기여자 | 4월 9일 |
-| **[13_PROXY-DATA.md](../13_PROXY-DATA.md)** | 전체 주간 프록시 데이터셋 (17,610건 요청, 129개 세션) + Mermaid 시각화 | 4월 8일 |
-| **[02_RATELIMIT-HEADERS.md](../02_RATELIMIT-HEADERS.md)** | 이중 5h/7d 윈도우 구조, 1%당 비용, thinking 토큰 사각지대, fallback-percentage 확장 데이터 | 4월 13일 |
+| **[13_PROXY-DATA.md](../13_PROXY-DATA.md)** | 전체 프록시 데이터셋 (38,996건 요청, 272개 세션, 4월 1–16일) + Mermaid 시각화 | 4월 16일 |
+| **[14_DATA-SOURCES.md](14_DATA-SOURCES.md)** | 데이터 라벨 매트릭스(`ubuntu-1-stock` / `ubuntu-1-override` / `win-1-stock`), 이전의 "단일 머신" 수치와의 조정, 내부 데이터베이스 스키마 개요 | 4월 16일 |
+| **[15_ENV-BREAKDOWN.md](15_ENV-BREAKDOWN.md)** | 환경별 cache_read 비율(4월 10일 기준 전/후, 일별 추이), Max 20x 대 Max 5x 모델 디스패치 비교, 티어 의존적 Haiku 비율 발견 | 4월 16일 |
+| **[02_RATELIMIT-HEADERS.md](../02_RATELIMIT-HEADERS.md)** | 이중 5h/7d 윈도우 구조, 1%당 비용, thinking 토큰 사각지대, fallback-percentage 확장 데이터 | 4월 15일 |
 | **[03_JSONL-ANALYSIS.md](../03_JSONL-ANALYSIS.md)** | 세션 로그 분석: PRELIM 인플레이션, 서브에이전트 비용, 수명주기 곡선, 프록시 교차 검증 | 4월 6일 |
 | **[05_MICROCOMPACT.md](../05_MICROCOMPACT.md)** | 심층 분석: 조용한 context 삭제 (버그 4) + 도구 결과 예산 (버그 5) | 4월 3일 |
 | **[04_BENCHMARK.md](../04_BENCHMARK.md)** | npm vs standalone 벤치마크 + 요청별 원시 데이터 | 4월 3일 |
@@ -221,11 +239,14 @@ Lydia Hallie는 Sonnet을 기본 모델로 사용하고, effort 레벨을 낮추
 
 ## 환경
 
-- **플랜:** Max 20 ($200/mo)
-- **OS:** Linux (Ubuntu), Linux workstation (ubuntu-1)
-- **테스트 버전:** v2.1.91 (벤치마크), v2.1.90, v2.1.89, v2.1.68. Changelog는 **v2.1.101**까지 검증
-- **모니터링:** cc-relay v2 투명 프록시 (4월 1-13일, 218개 세션에 걸쳐 총 27,708건 요청)
-- **날짜:** 2026년 4월 13일
+- **주요 데이터셋(이 저장소가 발표한 분석): `ubuntu-1-stock`**
+  - **플랜:** Max 20 ($200/mo)
+  - **OS:** Linux (Ubuntu), Linux workstation (ubuntu-1)
+  - **CC 모드:** 네이티브 `~/.claude` (CC stock, 플래그 오버라이드나 기타 계측 없음)
+  - **테스트 버전:** v2.1.91 (벤치마크), v2.1.90, v2.1.89, v2.1.68. Changelog는 **v2.1.108**까지 검증
+  - **모니터링:** cc-relay v2 투명 프록시 — **272개 세션에 걸쳐 총 38,996건 요청 (4월 1–16일)**
+- **병렬 데이터셋(별도로 추적, [14_DATA-SOURCES.md](14_DATA-SOURCES.md) 참조):** `ubuntu-1-override`(동일 머신/계정, 4월 10일부터 GrowthBook 플래그 오버라이드가 활성화된 분리 오버라이드 환경 — 추가 구성요소는 비공개로 유지), `win-1-stock`(Windows 11, Max 5x — 연구/검증 전용, 주요 공개 분석에는 사용되지 않음)
+- **날짜:** 2026년 4월 16일
 
 ---
 

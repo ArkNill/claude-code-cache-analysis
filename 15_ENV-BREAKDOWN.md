@@ -61,7 +61,7 @@ ubuntu-1 only (the win-1 dataset starts April 7 with few turns and is omitted fo
 
 Two things are visible.
 
-First, until April 10 the two modes show **identical daily counts** because the two JSONL directories (`.claude` and `.claude-gt`) still share their pre-split history. From April 11 onward they diverge: `ubuntu-1-override` is where work actually happens, and `ubuntu-1-stock` is essentially inactive. Any attempt to compute a "control" from stock after April 11 fails to a small-sample artefact (e.g. 74.04% on April 13 comes from 13 turns).
+First, until April 10 the two modes show **identical daily counts** because the two JSONL stores (stock `~/.claude` and an isolated override directory) still share their pre-split history. From April 11 onward they diverge: `ubuntu-1-override` is where work actually happens, and `ubuntu-1-stock` is essentially inactive. Any attempt to compute a "control" from stock after April 11 fails to a small-sample artefact (e.g. 74.04% on April 13 comes from 13 turns).
 
 Second, the override cache_read ratio reaches **98.16% on April 15** and 98.60% on the partial April 16 sample. This is the level claimed to be achievable by 1h TTL when it is actually preserved — consistent with the `tengu_prompt_cache_1h_config` allowlist match observed in the operator's environment.
 
@@ -93,7 +93,7 @@ Publishing an updated PRELIM/FINAL ratio across the three environments requires 
 
 - **Sample size on Max 5x is small.** The win-1 dataset has 895 assistant turns in total (April 7–15). Cache_read ratios on this dataset should not be compared directly to the Max 20x datasets; the dispatch composition finding (§4) is reported because the effect size is large, not because the sample is.
 - **`ubuntu-1-stock` post-April 10 is a residual, not a control.** The operator migrated their active work to an isolated override environment on April 11. Any comparison that requires parallel activity on stock after that date does not hold; use pre-4/10 stock as the baseline instead.
-- **Shared JSONL history through April 10.** The `.claude` and `.claude-gt` directories contain identical entries for dates before the split. This is a property of how the two environments were constructed on the operator's machine and is documented in [14_DATA-SOURCES.md §2.2](14_DATA-SOURCES.md#22-shared-storage-caveat). Queries that need true "pre-split" figures should filter on `ts < '2026-04-10'` AND choose one dataset, not both.
+- **Shared JSONL history through April 10.** The stock `~/.claude` store and the isolated override directory contain identical entries for dates before the split. This is a property of how the two environments were constructed on the operator's machine and is documented in [14_DATA-SOURCES.md §2.2](14_DATA-SOURCES.md#22-shared-storage-caveat). Queries that need true "pre-split" figures should filter on `ts < '2026-04-10'` AND choose one dataset, not both.
 - **No proxy-level data for the override env or win-1 yet.** The 38,996 cc-relay proxy rows currently attached to `ubuntu-1-stock` are the only proxy-level records in the database. Intercept and telemetry streams from the override environment and the win-1 machine have not yet been ingested — see §7.
 
 ## 7. Follow-ups
