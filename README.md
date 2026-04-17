@@ -2,13 +2,21 @@
 
 # Claude Code Hidden Problem Analysis
 
-> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Nine remain unfixed as of v2.1.108** (latest, 8 releases later). Proxy data in dataset `ubuntu-1-stock` now covers **38,996 requests** over 16 days (April 1–16, 272 unique sessions). A controlled GrowthBook flag override eliminated B4/B5 events completely (167,818 → 0, 5,500 → 0). The 7d quota window can become the binding constraint — first observed when 7d utilization hit 0.97. Anthropic acknowledged B11 (adaptive thinking zero-reasoning) on HN but has not followed up.
+> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Nine remain unfixed as of v2.1.108** (latest, 8 releases later). Proxy data in dataset `ubuntu-1-stock` now covers **38,996 requests** over 16 days (April 1–16, 272 unique sessions). A controlled GrowthBook flag override eliminated B4/B5 events completely (167,818 → 0, 5,500 → 0). The 7d quota window can become the binding constraint — first observed when 7d utilization hit 0.97. Anthropic acknowledged B11 (adaptive thinking zero-reasoning) on HN but has not followed up. **⚠️ Opus 4.7 advisory: [Do not upgrade past v2.1.109](16_OPUS-47-ADVISORY.md) — 2.4x Q5h burn, model pin bypass, cache metering anomaly.**
 >
-> **Last updated:** April 16, 2026 — see [changelog cross-reference](01_BUGS.md#changelog-cross-reference-v2192v21101), [08_UPDATE-LOG.md](08_UPDATE-LOG.md), and [14_DATA-SOURCES.md](14_DATA-SOURCES.md) (new: full data label matrix and reconciliation).
+> **Last updated:** April 17, 2026 — see [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) (new: Opus 4.7 advisory), [08_UPDATE-LOG.md](08_UPDATE-LOG.md), and [14_DATA-SOURCES.md](14_DATA-SOURCES.md).
 
 ---
 
-## Latest Update (April 16)
+## Latest Update (April 17)
+
+### April 17 — Opus 4.7 Advisory: Do Not Upgrade Past v2.1.109
+
+**⚠️ New chapter: [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md)** — Opus 4.7 launched April 16 with v2.1.111 as the default model. Three independent measurement sources confirm a **2.4x averaged Q5h burn rate** (cnighswonger, 71 API calls) cross-validated at **2.6x** (fgrosswig gateway proxy). Cold-start penalty reaches **12.5x** in controlled A/B testing. Five critical issues remain unresolved: cache metering anomaly ([#49302](https://github.com/anthropics/claude-code/issues/49302)), silent model switch ([#49541](https://github.com/anthropics/claude-code/issues/49541)), model pin bypass ([#49503](https://github.com/anthropics/claude-code/issues/49503)), adaptive under-thinking ([#49555](https://github.com/anthropics/claude-code/issues/49555)), and smoosh pipeline cache breakage ([#49585](https://github.com/anthropics/claude-code/issues/49585)).
+
+**Recommendation:** Stay on **v2.1.109** — sends explicit `claude-opus-4-6` model IDs (self-verified), has native 1h cache, and is unaffected by the April 23 API default switchover. Pin your version with `DISABLE_AUTOUPDATER=1`.
+
+Self-measured benchmark: 3 effort levels × 3 hard tasks × 20-turn session isolation (n=3). Evidence quality assessment with gap analysis included in the advisory.
 
 ### April 16 — Data source re-audit, 39K requests, 3 labeled datasets, environment breakdown
 

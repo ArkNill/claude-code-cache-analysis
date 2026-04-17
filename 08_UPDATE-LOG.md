@@ -6,6 +6,35 @@
 
 ---
 
+## April 17, 2026 — Opus 4.7 Advisory Published
+
+**Focus:** Synthesize Opus 4.7 risk data from three independent sources into a formal advisory recommending v2.1.109 as the safe version.
+
+**What was done:**
+- Collected and cross-referenced 80 Gmail notifications (April 15–17) spanning 73+ comments on [#42796](https://github.com/anthropics/claude-code/issues/42796), 39+ on [#38335](https://github.com/anthropics/claude-code/issues/38335), 23 on [fgrosswig/claude-gateway#1](https://github.com/fgrosswig/claude-gateway/issues/1), 7 on [cache-fix Discussion #25](https://github.com/cnighswonger/claude-code-cache-fix/discussions/25), and 5 on [#49585](https://github.com/anthropics/claude-code/issues/49585)
+- Integrated self-measured benchmark data (3 effort levels × 3 hard tasks × 20-turn session isolation, n=3, v2.1.112/Opus 4.7 on hmj PC)
+- Cross-validated cnighswonger's 2.4x Q5h measurement against fgrosswig's independent 2.6x gateway data — convergence at 2.4-2.6x confirms a real effect
+- Documented fgrosswig's live A/B test: 12.5x cold-start, 50x worst-case single call
+- Verified v2.1.109 safety: `claude -p --output-format json` shows explicit `claude-opus-4-6[1m]` model ID, `cache_creation_1h=43139 / cache_creation_5m=0` (native 1h cache)
+- Conducted evidence quality assessment: logical consistency review (4 items), numerical rigor review (4 items), evidence gap analysis (4 items)
+- Published [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) with 7 sections covering breaking changes, 5 critical unresolved issues, 4 independent measurements, v2.1.109 risk matrix, recommended configuration, full gap analysis, and upgrade reconsideration checklist
+
+**Findings:**
+- **2.4x averaged Q5h burn** on Opus 4.7 (cnighswonger, 71 calls / 38 min) — composed of tokenizer +35% and invisible adaptive thinking overhead ~105%. Cross-validated at 2.6x by fgrosswig
+- **12.5x cold-start multiplier** (fgrosswig A/B, same account, same minute): 4.7 shows 301K cache_read vs 4.6 at 821K, yet burns 12.5x more quota. Hypothesis: thinking tokens partially replace cache reads
+- **Model pin bypass** ([#49503](https://github.com/anthropics/claude-code/issues/49503)): `settings.json "model": "claude-opus-4-6"` ignored by v2.1.111+. Does not affect v2.1.109
+- **Smoosh pipeline** ([#49585](https://github.com/anthropics/claude-code/issues/49585)): deafsquad identified per-turn smoosh fold of dynamic `<system-reminder>` text into `tool_result.content` — causes byte drift, breaking cache prefixes. cache-fix v2.0.0-beta.4 (smoosh_split) reduces `cache_creation` by 99.8% in production
+- **Self-benchmark caveat**: Our controlled test shows stock ≈ intercept (~1x) because it used `--effort high`, print mode, English prompts, and 20-turn isolated sessions. This does not contradict the 2.4x — it confirms the overhead is conditional on session characteristics
+- **Community sentiment**: Multiple subscription cancellations reported (mhbosch, vrathore18, MrRobot701, madeumendes), legal action discussed (dsmoz), media coverage emerging
+
+**Published:**
+- [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) (new) — Opus 4.7 advisory with v2.1.109 recommendation
+- [README.md](README.md) — April 17 latest update, TL;DR updated with advisory link
+- [09_QUICKSTART.md](09_QUICKSTART.md) — Opus 4.7 warning banner, v2.1.109 Option C, model pin configuration
+- [08_UPDATE-LOG.md](08_UPDATE-LOG.md) — this entry
+
+---
+
 ## April 16, 2026 — Data Source Re-Audit & DW Consolidation
 
 **Focus:** Re-audit the labeling of previously published figures after noticing that the descriptor "single machine, 1,735 JSONL files" was imprecise.

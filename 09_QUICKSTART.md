@@ -2,20 +2,26 @@
 
 # Quick Start — Setup & Self-Diagnosis
 
-> Practical steps to minimize token drain. Two approaches: **stay current** (v2.1.91+) or **downgrade** (v2.1.63). Both are valid — choose based on your workflow. For the technical analysis behind these recommendations, see [01_BUGS.md](01_BUGS.md).
+> Practical steps to minimize token drain. Three approaches: **stay on v2.1.109** (recommended, April 17), **stay current** (v2.1.91+), or **downgrade** (v2.1.63). For the technical analysis behind these recommendations, see [01_BUGS.md](01_BUGS.md).
+
+---
+
+## ⚠️ Opus 4.7 Warning (April 17, 2026)
+
+> **Do not upgrade Claude Code past v2.1.109.** Opus 4.7 (shipped with v2.1.111) introduces a **2.4x averaged Q5h burn rate** (independently measured by two interceptors), **model pin bypass** (settings.json ignored), and **cache metering anomaly** (~7x reported overcharge). v2.1.109 sends explicit `claude-opus-4-6` model IDs and is unaffected by the April 23 API default switchover. Full analysis: [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md).
 
 ---
 
 ## Which Approach Is Right for You?
 
-| | **Option A: Stay Current (v2.1.91+)** | **Option B: Downgrade (v2.1.63)** |
-|---|---|---|
-| **Cache bugs** | B1/B2 fixed — 95-99% cache hit in stable sessions | No cache bugs (predates them), but also no fixes for future regressions |
-| **System prompt** | Includes "Output efficiency" instructions (v2.1.64+) — model may take shortcuts | Pre-"Output efficiency" — multiple users report deeper analysis and better code quality |
-| **Features** | Full access: hooks, skills, plugins, 1M context, Agent SDK | No hooks, no skills, limited plugin support. 1M context may not be available |
-| **Token cost** | Higher baseline (~280K avg context per @wpank) but cache offsets most of it | Lower baseline (~68K avg context per @wpank) — 3.3x cheaper per request in head-to-head test |
-| **New bugs** | Exposed to B3-B11. Workarounds exist for most | Not exposed to B8a-B11, but also no protection against server-side issues (B4, B5, server quota) |
-| **Best for** | Users who need hooks/skills/plugins, or who use the cache-fix interceptor | Users who prioritize code quality and cost efficiency over latest features |
+| | **Option C: Pin v2.1.109 (recommended)** | **Option A: Stay Current (v2.1.91+)** | **Option B: Downgrade (v2.1.63)** |
+|---|---|---|---|
+| **Opus 4.7** | **Not exposed** — sends explicit 4.6 model ID | ⚠️ v2.1.111+ defaults to 4.7, model pin ignored | Not exposed (predates 4.7) |
+| **Cache bugs** | B1/B2 fixed, native 1h cache | B1/B2 fixed — 95-99% cache hit | No cache bugs (predates them) |
+| **Features** | Full: hooks, skills, plugins, 1M context, Agent SDK | Full access | No hooks, no skills, limited plugin |
+| **Token cost** | Opus 4.6 rates (no +35% tokenizer) | ⚠️ If on 4.7: +35% tokenizer + 2.4x thinking overhead | Lowest baseline (~68K avg) |
+| **New bugs** | B3-B11 present. Workarounds exist | B3-B11 + 4.7 issues (#49302, #49503, #49541) | Not exposed to B8a-B11 |
+| **Best for** | **Most users** — full features without 4.7 risks | Users who need latest CC features (post-v2.1.109) | Cost efficiency over features |
 
 **Independent confirmations for v2.1.63 downgrade:**
 - @wpank: 47,810 requests tracked — 2.2x more output per dollar, 68% cheaper per request (caveat: session length mismatch in comparison)
@@ -65,11 +71,16 @@ Proxy-based tools and Hooks API tools (including OpenWolf) work with both instal
 ```bash
 # Disable auto-update (add to ~/.claude/settings.json)
 {
+  "model": "claude-opus-4-6",
+  "effortLevel": "high",
   "env": {
-    "DISABLE_AUTOUPDATER": "1"
+    "DISABLE_AUTOUPDATER": "1",
+    "ANTHROPIC_MODEL": "claude-opus-4-6"
   }
 }
 ```
+
+> **Why pin v2.1.109 specifically?** It is the most recent version that (1) sends explicit `claude-opus-4-6` model IDs (verified), (2) has native 1h cache (`cache_creation_5m=0`), (3) is not affected by the v2.1.111+ model pin bypass ([#49503](https://github.com/anthropics/claude-code/issues/49503)), and (4) will not be affected by the April 23 API default switchover. See [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) for full analysis.
 
 ### Recommended Environment Variables
 
