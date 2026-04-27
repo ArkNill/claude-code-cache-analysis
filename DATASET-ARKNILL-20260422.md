@@ -1,6 +1,6 @@
 # ArkNill Primary Dataset Report (2026-04-22)
 
-> Status: Working document (not committed)
+> Status: Published
 > Primary source: `~/.cc-relay/usage.db` (mitmproxy TLS intercept → SQLite)
 > Supplementary: seanGSISG (Issue #3, 215K calls), cnighswonger (Issue #3/#4, 101K calls)
 

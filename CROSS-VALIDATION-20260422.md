@@ -1,6 +1,6 @@
 # Cross-Validation Report: Three Independent Datasets Converge
 
-> Generated: 2026-04-22 | Status: Working document (not committed)
+> Generated: 2026-04-22
 > Based on: Issue #3 (seanGSISG), Issue #4 (cnighswonger), ArkNill proxy DB
 
 ## 1. Dataset Overview
