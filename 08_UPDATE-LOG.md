@@ -6,6 +6,56 @@
 
 ---
 
+## May 4, 2026 — CHANGELOG v2.1.120–126 Cross-Reference + Opus 4.7 Advisory Updates
+
+**Focus:** Extend CHANGELOG cross-reference to v2.1.126 (latest), verify all tracked GitHub issues, add new Opus 4.7 findings.
+
+**What was done:**
+- Fetched full CHANGELOG (v2.1.120–v2.1.126, 7 releases) via GitHub API and cross-referenced against all 9 unfixed bugs (B3–B11, B2a) and 3 preliminary findings (P1–P3)
+- Verified current GitHub status of 16 tracked issues via `gh issue view`: #40584, #42542, #41346, #45419, #44703, #44724, #45286, #49302, #49503, #49585, #52228, #52502, #52534, #45381, #21321, #47098
+- Investigated B9 (#45419) and B10 (#44703) closure reasons — B9 self-closed as duplicate, B10 closed without fix
+- Verified P1 (#45381) fix: community-confirmed in v2.1.108 by @EmpireJones (all three telemetry configs retain 1h TTL)
+- Read and fact-checked #53801 (autocompact 195K on v2.1.120) and #55301 (xhigh regression on May 1) original issue bodies
+
+**Changes applied (3 commits):**
+
+1. **01_BUGS.md** — CHANGELOG v2.1.120–126 cross-reference table, B8a status upgrade (UNFIXED → SYMPTOM MITIGATED), P1 status upgrade (Unknown → FIXED), B9/B10 closure clarification, header summary update, cumulative 34-day summary
+
+2. **16_OPUS-47-ADVISORY.md** — Section 2.6 (autocompact 195K threshold, #53801), Section 2.7 (xhigh effort regression, #55301), Section 6.3 evidence gaps E6/E7, Section 7 checklist (#49618/#49593 CLOSED, #53801 added)
+
+3. **README.md + 08_UPDATE-LOG.md** — version references v2.1.119 → v2.1.126, May 4 update section, investigation log entry
+
+**Issue status snapshot (May 4):**
+
+| Issue | Apr 27 status | May 4 status | Changed? |
+|-------|---------------|--------------|----------|
+| #40584 (B3 false RL) | OPEN | OPEN | No |
+| #42542 (B4 microcompact) | OPEN | OPEN | No |
+| #41346 (B8 log dup) | OPEN | OPEN | No |
+| #44724 (B2a SendMessage) | OPEN | OPEN | No |
+| #21321 (B8a meta) | OPEN | OPEN | No |
+| #49302 (cache metering) | OPEN | OPEN | No |
+| #49503 (model pin) | OPEN | OPEN | No |
+| #49585 (smoosh cache) | OPEN | OPEN | No |
+| #49747 (XML/JSON) | OPEN | OPEN | No |
+| #52228 (self-conversation) | OPEN | OPEN | No |
+| #52502 (subagent pin) | OPEN | OPEN | No |
+| #52534 (effort override) | OPEN | OPEN | No |
+| #45381 (P1 telemetry TTL) | — | **CLOSED** (Apr 13) | ✅ New |
+| #45419 (B9 /branch) | CLOSED | CLOSED | No |
+| #44703 (B10 TaskOutput) | CLOSED | CLOSED | No |
+| #45286 (B8a JSONL) | CLOSED | CLOSED | No |
+
+Zero status changes since April 27 on all tracked OPEN issues. 12 of 12 OPEN issues remain OPEN. The only newly discovered closure is P1 (#45381, fixed April 13).
+
+**Published:**
+- [01_BUGS.md](01_BUGS.md) — CHANGELOG cross-reference v2.1.120–126
+- [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) — Sections 2.6, 2.7, 6.3, 7
+- [README.md](README.md) — May 4 update section, TL;DR refresh
+- [08_UPDATE-LOG.md](08_UPDATE-LOG.md) — this entry
+
+---
+
 ## April 27, 2026 — Factual Corrections Across 3 Documents
 
 **Focus:** Cross-check all published documents against CHANGELOG v2.1.110–v2.1.119 and current GitHub issue statuses. Correct factual errors and stale references.

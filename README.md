@@ -2,13 +2,24 @@
 
 # Claude Code Hidden Problem Analysis
 
-> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Nine remain unfixed as of v2.1.119** (latest). Proxy data now covers **45,884 requests** over 22 days (April 1–22, 320 unique sessions). A controlled GrowthBook flag override eliminated B4/B5 events completely (167,818 → 0, 5,500 → 0). The 7d quota window can become the binding constraint — first observed when 7d utilization hit 0.97. Anthropic acknowledged B11 (adaptive thinking zero-reasoning) on HN but has not followed up. **⚠️ Opus 4.7 advisory: [Do not upgrade past v2.1.109](16_OPUS-47-ADVISORY.md) — 2.4x Q5h burn, model pin bypass, cache metering anomaly.** Anthropic published an [April 23 postmortem](https://www.anthropic.com/engineering/april-23-postmortem) admitting 3 product-layer bugs; CHANGELOG analysis shows 2 of 3 were never documented — see [17_OPUS-47-POSTMORTEM-ANALYSIS.md](17_OPUS-47-POSTMORTEM-ANALYSIS.md).
+> **TL;DR:** Claude Code has **11 confirmed client-side bugs** (B1-B5, B8, B8a, B9, B10, B11, B2a) plus **3 preliminary findings** (P1-P3). Cache bugs (B1-B2) are fixed in v2.1.91. **Six remain unfixed as of v2.1.126** (latest): B3, B4, B5, B8, B9, B10. B8a received a symptom mitigation (v2.1.121). P1 (telemetry→TTL) **fixed** in v2.1.108. Proxy data covers **45,884 requests** over 22 days (April 1–22, 320 unique sessions). **⚠️ Opus 4.7 advisory: [Do not upgrade past v2.1.109](16_OPUS-47-ADVISORY.md) — 2.4x Q5h burn, model pin bypass, cache metering anomaly, long-context retrieval regression (91.9% → 59.2%).** Autocompact fires at ~195K despite 1M context ([#53801](https://github.com/anthropics/claude-code/issues/53801)). Anthropic published an [April 23 postmortem](https://www.anthropic.com/engineering/april-23-postmortem) admitting 3 product-layer bugs; CHANGELOG analysis shows 2 of 3 were never documented — see [17_OPUS-47-POSTMORTEM-ANALYSIS.md](17_OPUS-47-POSTMORTEM-ANALYSIS.md).
 >
-> **Last updated:** April 24, 2026 — see [17_OPUS-47-POSTMORTEM-ANALYSIS.md](17_OPUS-47-POSTMORTEM-ANALYSIS.md) (new: postmortem cross-check, CHANGELOG transparency analysis, post-postmortem issues), [CROSS-VALIDATION-20260422.md](CROSS-VALIDATION-20260422.md), [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md), and [08_UPDATE-LOG.md](08_UPDATE-LOG.md).
+> **Last updated:** May 4, 2026 — see [01_BUGS.md](01_BUGS.md) (CHANGELOG cross-reference extended to v2.1.126), [16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md) (autocompact 195K threshold, xhigh regression), and [08_UPDATE-LOG.md](08_UPDATE-LOG.md).
 
 ---
 
-## Latest Update (April 24)
+## Latest Update (May 4)
+
+### May 4 — CHANGELOG v2.1.120–126 Cross-Reference + Opus 4.7 Advisory Updates
+
+**[01_BUGS.md](01_BUGS.md)** — Extended CHANGELOG cross-reference from v2.1.101 to **v2.1.126** (7 additional releases). Of the original nine unfixed bugs, **six remain confirmed unfixed** (B3, B4, B5, B8, B9, B10) with tracking issues OPEN. B8a upgraded to **symptom mitigated** (v2.1.121 corrupt line skip on resume). P1 (telemetry→TTL downgrade) confirmed **fixed** in v2.1.108 (community verified by [@EmpireJones](https://github.com/EmpireJones)). B9 (#45419) and B10 (#44703) closed — B9 as duplicate of still-open #40363, B10 without engineer comment or fix confirmation.
+
+**[16_OPUS-47-ADVISORY.md](16_OPUS-47-ADVISORY.md)** — Two new findings added:
+- **Section 2.6:** Autocompact fires at ~195K tokens (19.5% of 1M) on v2.1.120, **post** the v2.1.117 fix ([#53801](https://github.com/anthropics/claude-code/issues/53801)). JSONL `compact_boundary` data, 6 consecutive reproductions. Users effectively get ~195K context before compaction destroys session state.
+- **Section 2.7:** `xhigh` effort regression on May 1 ([#55301](https://github.com/anthropics/claude-code/issues/55301)) — proxy-measured via claude-hooks. `medium` outperformed `xhigh` in the same session on the same model. **n=1 reporter, may be transient.**
+- **Section 7 checklist:** #49618 (bash classifier) and #49593 (context bloat) marked CLOSED. #53801 (autocompact threshold) added as new blocker.
+
+**Upgrade recommendation remains: stay on v2.1.109 with Opus 4.6.**
 
 ### April 24 — Postmortem Analysis: What the Changelog Didn't Say
 
